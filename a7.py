@@ -72,9 +72,10 @@ class BayesClassifier:
             text = self.load_file(os.path.join(self.training_data_directory, filename))
             token = self.tokenize(text)
             if self.neg_file_prefix in filename:
-                for word in token:
-                    for dictStr in self.neg_freqs:
-                        pass
+                self.update_dict(token,self.neg_freqs)
+            elif self.pos_file_prefix in filename:
+                self.update_dict(token,self.pos_freqs)
+
 
 
 
@@ -228,6 +229,14 @@ class BayesClassifier:
             words - list of tokens to update frequencies of
             freqs - dictionary of frequencies to update
         """
+        alreadyExists = False
+        for word in words:
+            for dictStr in freqs:
+                if dictStr[0] == word:
+                    dictStr[1] += 1
+                    alreadyExists = True
+            if not alreadyExists:
+                freqs.update([word,1])
         # TODO: your work here
         pass  # remove this line once you've implemented this method
 
