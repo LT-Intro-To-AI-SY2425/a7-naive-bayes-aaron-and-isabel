@@ -71,10 +71,12 @@ class BayesClassifier:
         #     <the rest of your code for updating frequencies here>
             text = self.load_file(os.path.join(self.training_data_directory, filename))
             token = self.tokenize(text)
-            if self.neg_file_prefix in filename:
+            if filename.startswith(self.neg_file_prefix):
                 self.update_dict(token,self.neg_freqs)
-            elif self.pos_file_prefix in filename:
+            elif filename.startswith(self.pos_file_prefix):
                 self.update_dict(token,self.pos_freqs)
+        # self.save_dict(self.neg_freqs, self.neg_filename)
+        # self.save_dict(self.pos_freqs, self.pos_filename)
 
 
 
@@ -121,18 +123,24 @@ class BayesClassifier:
 
         
         # get a list of the individual tokens that occur in text
-        
+        token = self.tokenize(text)
 
         # create some variables to store the positive and negative probability. since
         # we will be adding logs of probabilities, the initial values for the positive
         # and negative probabilities are set to 0
-        
+        posProb = 0
+        negProb = 0
 
         # get the sum of all of the frequencies of the features in each document class
         # (i.e. how many words occurred in all documents for the given class) - this
         # will be used in calculating the probability of each document class given each
         # individual feature
-        
+        posFreqSum = 0
+        for dictKey in self.pos_freqs: 
+            posFreqSum += self.pos_freqs[dictKey]
+        negFreqSum = 0
+        for dictKey in self.neg_freqs:
+            negFreqSum += self.neg_freqs[dictKey]
 
         # for each token in the text, calculate the probability of it occurring in a
         # postive document and in a negative document and add the logs of those to the
@@ -229,16 +237,15 @@ class BayesClassifier:
             words - list of tokens to update frequencies of
             freqs - dictionary of frequencies to update
         """
-        alreadyExists = False
         for word in words:
-            for dictStr in freqs:
-                if dictStr[0] == word:
-                    dictStr[1] += 1
+            alreadyExists = False
+            for dictKey in freqs:
+                if dictKey == word:
+                    freqs[dictKey] += 1
                     alreadyExists = True
             if not alreadyExists:
-                freqs.update([word,1])
+                freqs[word] = 1
         # TODO: your work here
-        pass  # remove this line once you've implemented this method
 
 
 if __name__ == "__main__":
