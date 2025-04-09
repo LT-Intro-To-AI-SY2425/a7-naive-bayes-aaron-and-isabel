@@ -75,8 +75,8 @@ class BayesClassifier:
                 self.update_dict(token,self.neg_freqs)
             elif filename.startswith(self.pos_file_prefix):
                 self.update_dict(token,self.pos_freqs)
-        # self.save_dict(self.neg_freqs, self.neg_filename)
-        # self.save_dict(self.pos_freqs, self.pos_filename)
+        self.save_dict(self.neg_freqs, self.neg_filename)
+        self.save_dict(self.pos_freqs, self.pos_filename)
 
 
 
@@ -147,18 +147,23 @@ class BayesClassifier:
         # running sums. when calculating the probabilities, always add 1 to the numerator
         # of each probability for add one smoothing (so that we never have a probability
         # of 0)
-
+        for word in token:
+            posProb += math.log((self.pos_freqs[word] + 1) / posFreqSum)
+            negProb += math.log((self.neg_freqs[word] + 1) / negFreqSum)
 
         # for debugging purposes, it may help to print the overall positive and negative
         # probabilities
-        
-
+        print(f"Positive Probability Sum: {posProb}")
+        print(f"Negative Probablility Sum: {negProb}")
         # determine whether positive or negative was more probable (i.e. which one was
         # larger)
-        
+        posLarger = posProb > negProb
 
         # return a string of "positive" or "negative"
-
+        if posLarger:
+            return "positive"
+        elif not posLarger:
+            return "negative"
     def load_file(self, filepath: str) -> str:
         """Loads text of given file
 
@@ -250,16 +255,16 @@ class BayesClassifier:
 
 if __name__ == "__main__":
     # uncomment the below lines once you've implemented `train` & `classify`
-    # b = BayesClassifier()
-    # a_list_of_words = ["I", "really", "like", "this", "movie", ".", "I", "hope", \
-    #                    "you", "like", "it", "too"]
-    # a_dictionary = {}
-    # b.update_dict(a_list_of_words, a_dictionary)
-    # assert a_dictionary["I"] == 2, "update_dict test 1"
-    # assert a_dictionary["like"] == 2, "update_dict test 2"
-    # assert a_dictionary["really"] == 1, "update_dict test 3"
-    # assert a_dictionary["too"] == 1, "update_dict test 4"
-    # print("update_dict tests passed.")
+    b = BayesClassifier()
+    a_list_of_words = ["I", "really", "like", "this", "movie", ".", "I", "hope", \
+                       "you", "like", "it", "too"]
+    a_dictionary = {}
+    b.update_dict(a_list_of_words, a_dictionary)
+    assert a_dictionary["I"] == 2, "update_dict test 1"
+    assert a_dictionary["like"] == 2, "update_dict test 2"
+    assert a_dictionary["really"] == 1, "update_dict test 3"
+    assert a_dictionary["too"] == 1, "update_dict test 4"
+    print("update_dict tests passed.")
 
     # pos_denominator = sum(b.pos_freqs.values())
     # neg_denominator = sum(b.neg_freqs.values())
