@@ -148,7 +148,10 @@ class BayesClassifier:
         # of each probability for add one smoothing (so that we never have a probability
         # of 0)
         for word in token:
-            if word in self.pos_freqs and word in self.neg_freqs:
+                if word not in self.pos_freqs:
+                    self.pos_freqs[word] = 0
+                if word not in self.neg_freqs:
+                    self.neg_freqs[word] = 0
                 posProb += math.log((self.pos_freqs[word] + 1) / posFreqSum)
                 negProb += math.log((self.neg_freqs[word] + 1) / negFreqSum)
 
