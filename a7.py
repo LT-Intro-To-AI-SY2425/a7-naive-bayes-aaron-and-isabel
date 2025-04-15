@@ -60,6 +60,8 @@ class BayesClassifier:
         # `text` here will be the literal text of the file (i.e. what you would see
         # if you opened the file in a text editor
         # text = self.load_file(os.path.join(self.training_data_directory, fName))
+        file = self.load_file("sorted_stoplist.txt")
+        stopwords = self.tokenize(file)
 
 
         # *Tip:* training can take a while, to make it more transparent, we can use the
@@ -70,11 +72,12 @@ class BayesClassifier:
             print(f"Training on file {index} of {len(files)}")
         #     <the rest of your code for updating frequencies here>
             text = self.load_file(os.path.join(self.training_data_directory, filename))
-            token = self.tokenize(text)
+            tokens = self.tokenize(text)
+            filtered_tokens = [token for token in tokens if token not in stopwords]
             if filename.startswith(self.neg_file_prefix):
-                self.update_dict(token,self.neg_freqs)
+                self.update_dict(filtered_tokens,self.neg_freqs)
             elif filename.startswith(self.pos_file_prefix):
-                self.update_dict(token,self.pos_freqs)
+                self.update_dict(filtered_tokens,self.pos_freqs)
         self.save_dict(self.neg_freqs, self.neg_filename)
         self.save_dict(self.pos_freqs, self.pos_filename)
 
@@ -142,18 +145,23 @@ class BayesClassifier:
         for dictKey in self.neg_freqs:
             negFreqSum += self.neg_freqs[dictKey]
 
+        vocab = set(self.pos_freqs.keys()).union(self.neg_freqs.keys())
+        vocab_size = len(vocab)
+        file = self.load_file("sorted_stoplist.txt")
+        stopwords = self.tokenize(file)
         # for each token in the text, calculate the probability of it occurring in a
         # postive document and in a negative document and add the logs of those to the
         # running sums. when calculating the probabilities, always add 1 to the numerator
         # of each probability for add one smoothing (so that we never have a probability
         # of 0)
         for word in token:
+            if word not in stopwords:
                 if word not in self.pos_freqs:
                     self.pos_freqs[word] = 0
                 if word not in self.neg_freqs:
                     self.neg_freqs[word] = 0
-                posProb += math.log((self.pos_freqs[word] + 1) / posFreqSum)
-                negProb += math.log((self.neg_freqs[word] + 1) / negFreqSum)
+                posProb += math.log((self.pos_freqs[word] + 1) / (posFreqSum + vocab_size))
+                negProb += math.log((self.neg_freqs[word] + 1) / (negFreqSum + vocab_size))
 
         # for debugging purposes, it may help to print the overall positive and negative
         # probabilities
@@ -283,12 +291,13 @@ if __name__ == "__main__":
     print(f"count for the word 'computer' in negative dictionary {b.neg_freqs['computer']}")
     print(f"count for the word 'science' in positive dictionary {b.pos_freqs['science']}")
     print(f"count for the word 'science' in negative dictionary {b.neg_freqs['science']}")
-    print(f"count for the word 'i' in positive dictionary {b.pos_freqs['i']}")
-    print(f"count for the word 'i' in negative dictionary {b.neg_freqs['i']}")
-    print(f"count for the word 'is' in positive dictionary {b.pos_freqs['is']}")
-    print(f"count for the word 'is' in negative dictionary {b.neg_freqs['is']}")
-    print(f"count for the word 'the' in positive dictionary {b.pos_freqs['the']}")
-    print(f"count for the word 'the' in negative dictionary {b.neg_freqs['the']}")
+    # The following asserts are for words in the stoplist and are no longer necessary 
+    # print(f"count for the word 'i' in positive dictionary {b.pos_freqs['i']}")
+    # print(f"count for the word 'i' in negative dictionary {b.neg_freqs['i']}")
+    # print(f"count for the word 'is' in positive dictionary {b.pos_freqs['is']}")
+    # print(f"count for the word 'is' in negative dictionary {b.neg_freqs['is']}")
+    # print(f"count for the word 'the' in positive dictionary {b.pos_freqs['the']}")
+    # print(f"count for the word 'the' in negative dictionary {b.neg_freqs['the']}")
 
     print("\nHere are some sample probabilities.")
     print(f"P('love'| pos) {(b.pos_freqs['love']+1)/pos_denominator}")
