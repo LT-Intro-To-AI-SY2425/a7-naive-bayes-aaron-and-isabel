@@ -313,4 +313,11 @@ if __name__ == "__main__":
     print("\nThe following should all be negative.")
     print(b.classify('rainy days are the worst'))
     print(b.classify('computer science is terrible'))
+    print("\nAnalysis phrases")
+    print(b.classify("Summer break is almost here.  I am super excited and I know that it's going to be the best"))
+    print(b.classify("I think sunshine and rainbows are awesome"))
+    print(b.classify("I love seahorses!"))
+    print(b.classify("I am nervous that I won't do well on the AP tests.  I have studied, but I don't think I'll do that well"))
+    print(b.classify("This movie was really boring. I fell asleep halfway through."))
+    print(b.classify("I despise salamanders!"))
     pass
